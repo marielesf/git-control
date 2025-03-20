@@ -8,18 +8,12 @@ import (
 	filters "git-control/internal/rank"
 )
 
-const NumberOfResults = 10
-
 func main() {
 	var repos []string
 	var sumCommits map[string]int
+	const NumberOfResults = 10
 
 	commits := fileUtils.ReadFile("assets/commits.csv")
-	// get values from command line
-	// numberOfCommits, err := strconv.Atoi(os.Args[1])
-	// if err != nil {
-	// 	panic(err)
-	// }
 	var Option int
 
 	fmt.Print("Chose a option: \n")
@@ -27,19 +21,26 @@ func main() {
 	fmt.Printf("2 - %d Repositories most Used by an informed user \n", NumberOfResults)
 	_, err := fmt.Scan(&Option)
 	if err != nil {
+		fmt.Printf("Something wrong happen: %v\n", err)
 		panic(err)
-	}
-
-	if Option == 1 {
-		repos, sumCommits = filters.CountCommitsByRepo(commits)
+		// return
 	} else {
-		var user string
-		fmt.Printf("Type user name: \n")
-		_, err := fmt.Scan(&user)
-		if err != nil {
-			panic(err)
+
+		switch Option {
+		case 1:
+			repos, sumCommits = filters.CountCommitsByRepo(commits)
+		case 2:
+			var user string
+			fmt.Printf("Type user name: \n")
+			_, err := fmt.Scan(&user)
+			if err != nil {
+				fmt.Printf("Invalid user: %v\n", err)
+				return
+			}
+			repos, sumCommits = filters.CountCommitsByUser(commits, user)
+		default:
+			fmt.Printf("Invalid option - Please run again.\n")
 		}
-		repos, sumCommits = filters.CountCommitsByUser(commits, user)
 	}
 	// get top 10 repositories
 	fileUtils.PrintData(NumberOfResults, repos, sumCommits)
